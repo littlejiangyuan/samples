@@ -1,7 +1,9 @@
 syntax = "proto3";
 
-package ecommerce;
+//package ecommerce;
+option go_package = "/ecommerce";
 
+//定义了2个服务，addProduct和getProduct，注意他们首字母是小写，转化成Go时会自动变成大写
 service ProductInfo {
     rpc addProduct(Product) returns (ProductID);
     rpc getProduct(ProductID) returns (Product);
