@@ -26,6 +26,7 @@ const (
 var orderMap = make(map[string]pb.Order)
 
 type server struct {
+	pb.UnimplementedOrderManagementServer
 	orderMap map[string]*pb.Order
 }
 
@@ -44,8 +45,6 @@ func (s *server) GetOrder(ctx context.Context, orderId *wrapper.StringValue) (*p
 	}
 
 	return nil, status.Errorf(codes.NotFound, "Order does not exist. : ", orderId)
-
-
 }
 
 // Server-side Streaming RPC
