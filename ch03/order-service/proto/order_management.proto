@@ -2,13 +2,20 @@ syntax = "proto3";
 
 import "google/protobuf/wrappers.proto";
 
-package ecommerce;
+//package ecommerce;
+option go_package = "/ecommerce";
 
+//定义一些服务 包含了四种通信方式
 service OrderManagement {
+    //一元通信方式
     rpc addOrder(Order) returns (google.protobuf.StringValue);
+    //一元通信方式
     rpc getOrder(google.protobuf.StringValue) returns (Order);
+    //服务端流通信方式
     rpc searchOrders(google.protobuf.StringValue) returns (stream Order);
+    //客户端流通信方式
     rpc updateOrders(stream Order) returns (google.protobuf.StringValue);
+    //双端通信方式
     rpc processOrders(stream google.protobuf.StringValue) returns (stream CombinedShipment);
 }
 
