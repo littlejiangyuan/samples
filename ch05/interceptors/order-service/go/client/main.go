@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	pb "github.com/grpc-up-and-running/samples/ch05/interceptors/order-service/go/order-service-gen"
 	wrapper "github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc"
 	"io"
 	"log"
+	pb "ordermgt/order-service-gen"
 	"time"
 )
 
@@ -18,7 +18,9 @@ func main() {
 	// Setting up a connection to the server.
 	conn, err := grpc.Dial(address, grpc.WithInsecure(),
 		grpc.WithUnaryInterceptor(orderUnaryClientInterceptor),
-		grpc.WithStreamInterceptor(clientStreamInterceptor))
+		grpc.WithStreamInterceptor(clientStreamInterceptor),
+	)
+
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -28,13 +30,11 @@ func main() {
 	defer cancel()
 
 	// Add Order
-	order1 := pb.Order{Id: "101", Items:[]string{"iPhone XS", "Mac Book Pro"}, Destination:"San Jose, CA", Price:2300.00}
-	res, _ := c.AddOrder(ctx, &order1)
-	log.Print("AddOrder Response -> ", res.Value)
+	//order1 := pb.Order{Id: "101", Items:[]string{"iPhone XS", "Mac Book Pro"}, Destination:"San Jose, CA", Price:2300.00}
+	//res, _ := c.AddOrder(ctx, &order1)
+	//log.Print("AddOrder Response -> ", res.Value)
 
-
-
-	// Get Order
+	//Get Order
 	//retrievedOrder , err := c.GetOrder(ctx, &wrapper.StringValue{Value: "106"})
 	//log.Print("GetOrder Response -> : ", retrievedOrder)
 
@@ -97,7 +97,6 @@ func asncClientBidirectionalRPC (streamProcOrder pb.OrderManagement_ProcessOrder
 	c <- true
 }
 
-
 func orderUnaryClientInterceptor(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 	// Pre-processor phase
 	log.Println("Method : " + method)
@@ -110,9 +109,6 @@ func orderUnaryClientInterceptor(ctx context.Context, method string, req, reply 
 
 	return err
 }
-
-
-
 
 
 func clientStreamInterceptor(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {

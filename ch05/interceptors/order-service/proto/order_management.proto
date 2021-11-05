@@ -2,7 +2,8 @@ syntax = "proto3";
 
 import "google/protobuf/wrappers.proto";
 
-package ecommerce;
+//package ecommerce;
+option go_package = "/order-service-gen;order_service_gen";
 
 service OrderManagement {
     rpc addOrder(Order) returns (google.protobuf.StringValue);

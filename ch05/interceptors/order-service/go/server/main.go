@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	wrapper "github.com/golang/protobuf/ptypes/wrappers"
-	pb "github.com/grpc-up-and-running/samples/ch05/interceptors/order-service/go/order-service-gen"
+	pb "ordermgt/order-service-gen"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"io"
@@ -12,6 +12,7 @@ import (
 	"net"
 	"strings"
 	"time"
+	//"github.com/grpc-ecosystem/go-grpc-middleware"
 )
 
 const (
@@ -22,6 +23,7 @@ const (
 var orderMap = make(map[string]pb.Order)
 
 type server struct {
+	pb.UnimplementedOrderManagementServer
 	orderMap map[string]*pb.Order
 }
 
@@ -125,19 +127,35 @@ func (s *server) ProcessOrders(stream pb.OrderManagement_ProcessOrdersServer) er
 }
 
 
-// Server :: Unary Interceptor
+// 服务端的一元拦截器
 func orderUnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	// Pre-processing logic
 	// Gets info about the current RPC call by examining the args passed in
 	log.Println("======= [Server Interceptor] ", info.FullMethod)
-	log.Printf(" Pre Proc Message : %s", req)
-
-
+	log.Printf(" order before...")
 	// Invoking the handler to complete the normal execution of a unary RPC.
 	m, err := handler(ctx, req)
-
 	// Post processing logic
-	log.Printf(" Post Proc Message : %s", m)
+	log.Printf("order after...")
+	return m, err
+}
+
+//再添加一个拦截器
+func test1UnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	log.Println("======= [Server Interceptor] ", info.FullMethod)
+	log.Printf("test1 before...")
+	// Invoking the handler to complete the normal execution of a unary RPC.
+	m, err := handler(ctx, req)
+	log.Printf("test1 after...")
+	return m, err
+}
+//第三个拦截器
+func test2UnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	log.Println("======= [Server Interceptor] ", info.FullMethod)
+	log.Printf("test2 before...")
+	// Invoking the handler to complete the normal execution of a unary RPC.
+	m, err := handler(ctx, req)
+	log.Printf("test2 after...")
 	return m, err
 }
 
@@ -182,6 +200,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(test1UnaryServerInterceptor, test2UnaryServerInterceptor),
 		grpc.UnaryInterceptor(orderUnaryServerInterceptor),
 		grpc.StreamInterceptor(orderServerStreamInterceptor))
 	pb.RegisterOrderManagementServer(s, &server{})
